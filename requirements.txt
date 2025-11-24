@@ -1,0 +1,107 @@
+What ChessService should do
+1. Store and manage chess games
+
+This is its core purpose.
+
+Create a new game
+
+Store game participants (white, black)
+
+Store the board state (FEN)
+
+Store move history
+
+Store game status (ongoing, checkmate, draw, resigned)
+
+2. Validate moves
+
+Using chesslib, the service becomes the “source of truth.”
+
+Receive a move from the frontend
+
+Load the current FEN
+
+Ask chesslib if the move is legal
+
+If legal → update FEN and save
+
+If illegal → reject the request
+
+3. Enforce turns
+
+The backend decides whose turn it is, not the UI.
+
+4. Prevent cheating
+
+If someone bypasses your UI and sends an illegal API move, the server blocks it.
+
+5. Serve game state to the frontend
+
+Endpoints like:
+
+/api/chess/{gameId} → full game
+
+/api/chess/{gameId}/fen → board state
+
+/api/chess/{gameId}/moves → move list
+
+The frontend uses these to render the board.
+
+6. Authenticate users using JWT
+
+This ensures:
+
+Only logged-in players can play
+
+Only the right players can move pieces in a game
+
+Spectators can still fetch but not modify game state (if you allow that)
+
+7. Support multiplayer flow
+
+For example:
+
+Player A makes a move
+
+Backend validates and saves
+
+Player B fetches updated game state
+
+Later, you can add WebSockets if you want real-time updates.
+
+What ChessService should not do
+1. It should NOT handle login, registration, or passwords
+
+That stays in UserService. ChessService only validates JWTs, not users.
+
+2. It should NOT control the chess UI
+
+The React frontend with chess.js and react-chessboard handles the board and animations.
+
+3. It should NOT generate HTML, render UI or push graphics
+
+Backend stores and validates data only.
+
+4. It should NOT store users or manage accounts
+
+No users table.
+UserService owns that.
+
+5. It should NOT rely on the frontend for move validation
+
+Frontend validation is optional sugar for the user.
+Backend validation is mandatory.
+
+6. It should NOT become a monolith
+
+It should stay isolated with:
+
+its own repo
+
+its own database
+
+its own deployment
+
+its own Spring app
+
+7. It should NOT generate JWT tokens
